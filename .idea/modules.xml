@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/NFL Betting Model.iml" filepath="$PROJECT_DIR$/.idea/NFL Betting Model.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../PGA Webscraper/.idea/PGA Webscraper.iml" filepath="$PROJECT_DIR$/../PGA Webscraper/.idea/PGA Webscraper.iml" />
+    </modules>
+  </component>
+</project>

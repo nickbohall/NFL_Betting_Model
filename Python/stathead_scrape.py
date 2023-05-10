@@ -1,6 +1,9 @@
 import pandas as pd
+import selenium.common.exceptions
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -56,18 +59,27 @@ class teamStats():
         headers = [header.text for header in table_headers[1:]]
         data.append(headers)
 
-        # Now get the body table
-        table_rows = self.driver.find_element(By.CSS_SELECTOR, "table tbody")\
-            .find_elements(By.CSS_SELECTOR, "tr")\
+        for page in range(13):
+            try:
+                # Now get the body table
+                table_rows = self.driver.find_element(By.CSS_SELECTOR, "table tbody")\
+                    .find_elements(By.CSS_SELECTOR, "tr")\
 
-        # Now iterate through the rows
-        for row in table_rows:
-            if row.get_attribute("class") == "thead" or row.get_attribute("class") == "over_header thead":
+                # Now iterate through the rows
+                for row in table_rows:
+                    if row.get_attribute("class") == "thead" or row.get_attribute("class") == "over_header thead":
+                        continue
+                    else:
+                        row_items = row.find_elements(By.CSS_SELECTOR, "td")
+                        items = [item.text for item in row_items]
+                        data.append(items)
+
+                next_page = self.driver.find_element(By.CLASS_NAME, "next")
+                self.driver.execute_script("arguments[0].click();", next_page)
+            except selenium.common.exceptions.NoSuchElementException: # Keep going to the end
                 continue
-            else:
-                row_items = row.find_elements(By.CSS_SELECTOR, "td")
-                items = [item.text for item in row_items]
-                data.append(items)
+
+            time.sleep(3)
 
         return data
 

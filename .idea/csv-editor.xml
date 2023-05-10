@@ -31,13 +31,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\nfl_score_data.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
       </map>
     </option>
   </component>

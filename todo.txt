@@ -1,0 +1,11 @@
+Todo:
+1. Add opp data
+1b. Take out 2020. Add in 2017.
+2. Every colum i pick is rolling avg (variable = 4)
+3. Later, try weighted rolling avg (closer to game = higher weight)
+4. Try to predict score, and then opp score
+5. Do that for both sides of the game & compare
+6. Try random forest, support vector machine
+7. at the end, bring in spreads
+8. Over and under? avg both sides of pts scored/pts against
+9. Add in weather (temp, rain yes no, dome or not, snow?)

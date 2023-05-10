@@ -1,8 +1,10 @@
-from data_scrape import WeeklyStats
-from stathead_scrape import teamStats
-import pandas as pd
-from functools import reduce
 from datetime import datetime
+from functools import reduce
+
+import numpy as np
+import pandas as pd
+
+from stathead_scrape import teamStats
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
@@ -10,7 +12,7 @@ pd.set_option('display.max_columns', None)
 # ------------------------------------ CONSTANTS ------------------------------------#
 
 CURRENT_YEAR = datetime.today().year
-YEAR_MIN = 2018
+YEAR_MIN = 2017
 YEAR_MAX = 2022
 
 POINTS = "points"
@@ -21,14 +23,21 @@ TOTALS = "tot_yds"
 PENALTIES = "penalties"
 DOWNS = "first_down"
 SCORING = "all_td_team"
-
+OPP_PASSING = "pass_cmp_opp"
+OPP_RUSHING = "rush_att_opp"
+OPP_TOTALS = "tot_yds_opp"
+OPP_DOWNS = "first_down_opp"
+OPP_SCORING = "all_td_opp"
 # ------------------------------------ GET THE DFS ------------------------------------#
 
 stats = teamStats()
 stats.login()
 
 # Create a list of all the constants we're going to pass into the df function
-attribute_list = [POINTS, VEGAS, PASSING, RUSHING, TOTALS, PENALTIES, DOWNS]
+attribute_list = [POINTS, VEGAS, PASSING , RUSHING, TOTALS, PENALTIES, DOWNS, OPP_PASSING, OPP_RUSHING, OPP_TOTALS,
+                  OPP_DOWNS, OPP_SCORING]
+df_names = ["points", "vegas", "pass", "rush", "total", "penalty", "downs", "opp_passing", "opp_rushing", "opp_totals",
+            "opp_downs", "opp_scoring"]
 
 # Initialize a list for the dfs to go into
 df_list = []
@@ -39,22 +48,32 @@ for attribute in attribute_list:
     df_list.append(df)
     df.to_csv(f"../Data out/{attribute}.csv", index=False)
 
-# Remove all duplicate columns from each subsequent df
-for df in df_list[1:]:
-    df.drop(["Team", "Date", "Day", "G#", "Week", "", "Opp", "Result"], axis=1, inplace=True)
+# Create base df to merge them all onto
+base_df = df_list[0][["game_id", "Team", "Date", "Day", "G#", "Week", "", "Opp", "Result"]]
+base_df["home"] = np.where(base_df[""] == "@", 0, 1)
+base_df.drop("", axis=1, inplace=True)
 
-# Clean some of the columns
-df_list[2].rename(columns={"Att": "pass_att", 'Yds': 'pass_yds', 'TD': "pass_TD", 'Y/A': "pass_Y/A"}, inplace=True)
-df_list[3].rename(columns={"Att": "rush_att", 'Yds': 'rush_yds', 'TD': "rush_TD", 'Y/A': "rush_Y/A"}, inplace=True)
-df_list[5].rename(columns={'Yds': 'pen_yds'}, inplace=True)
+# Remove all duplicate columns from each subsequent df
+for df in df_list:
+    df.drop(["Team", "Date", "Day", "G#", "Week", "", "Opp", "Result"], axis=1, inplace=True)
+    # Drop that weird dup column from the website
+    df.drop(df.columns[1], axis=1, inplace=True)
+
+    # Rearrange the columns so that game_id is in front
+    cols = df.columns.tolist()
+    cols = cols[-1:] + cols[:-1]
+    df = df[cols]
+
+# Ok now name the columns something specific to their metric so there's no dups
+for i in range(len(df_list)):
+    df_list[i] = df_list[i].set_index(["game_id"]).add_suffix(f"_{df_names[i]}").reset_index()
+    print(df_list[i].head())
+
+# Now add back in the base df to the list to merge them all
+df_list.insert(0, base_df)
 
 # Combine the dfs on game_id and out to csv
-master = df_list[0]\
-    .merge(df_list[1], on="game_id") \
-    .merge(df_list[2], on="game_id") \
-    .merge(df_list[3], on="game_id") \
-    .merge(df_list[4], on="game_id") \
-    .merge(df_list[5], on="game_id") \
-    .merge(df_list[6], on="game_id")
+master = reduce(lambda left, right: pd.merge(left, right, on=['game_id'],
+                                             how='left'), df_list)
 
-master.to_csv(f"../Data out/master_data.csv")
+master.to_csv(f"../Data out/master_data_{YEAR_MIN}-{YEAR_MAX}.csv")

@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="C:\Users\Sleepycornbread\PycharmProjects\Portfolio Projects\PGA Webscraper\Data Out\2023_AT&amp;T Byron Nelson_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\Data out\first_down.csv">
           <value>
             <Attribute>
@@ -25,6 +32,13 @@
           </value>
         </entry>
         <entry key="\Data out\penalties.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\Python NFL API\data_2017_to_2022.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

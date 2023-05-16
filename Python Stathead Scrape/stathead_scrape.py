@@ -7,7 +7,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from datetime import datetime
+from datetime import datetime as dt
+import numpy as np
 import time
 
 
@@ -80,16 +81,25 @@ class teamStats():
                 continue
 
             time.sleep(3)
-
         return data
+
+    def create_season(self, df):
+        year = pd.to_datetime(df.Date).dt.year
+        df["month"] = pd.to_datetime(df.Date).dt.month
+        df["Season"] = np.where(df["month"] < 5, year - 1, year)
+        df.drop("month", axis=1, inplace=True)
+        return df
 
     # Helper function to create a unique ID for every game to use on each DF
     def create_ID(self, df):
+        # First we have to create a season column for everyone
+        self.create_season(df)
         team = df["Team"]
         opponent = df["Opp"]
-        date = df["Date"]
-        df["game_id"] = team + "_" + opponent + "_" + date.astype(str)
-
+        season = df["Season"]
+        week = df["Week"]
+        df["game_id"] = season.astype(str) + "_" + week.astype(str).apply(lambda x: x.zfill(2)) \
+                        + "_" + team + "_" + opponent
         return df
 
     # Now we can start calling the individual tables we want to turn to dfs

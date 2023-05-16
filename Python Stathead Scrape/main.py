@@ -28,6 +28,7 @@ OPP_RUSHING = "rush_att_opp"
 OPP_TOTALS = "tot_yds_opp"
 OPP_DOWNS = "first_down_opp"
 OPP_SCORING = "all_td_opp"
+
 # ------------------------------------ GET THE DFS ------------------------------------#
 
 stats = teamStats()
@@ -46,18 +47,19 @@ df_list = []
 for attribute in attribute_list:
     df = stats.get_stats_df(attribute, YEAR_MIN, YEAR_MAX)
     df_list.append(df)
-    df.to_csv(f"../Data out/{attribute}.csv", index=False)
+    df.to_csv(f"../Stathead - Data out/{attribute}.csv", index=False)
 
 # Create base df to merge them all onto
-base_df = df_list[0][["game_id", "Team", "Date", "Day", "G#", "Week", "", "Opp", "Result"]]
+base_df = df_list[0][["game_id", "Team", "Season", "Date", "Day", "G#", "Week", "", "Opp", "Result"]]
 base_df["home"] = np.where(base_df[""] == "@", 0, 1)
 base_df.drop("", axis=1, inplace=True)
 
 # Remove all duplicate columns from each subsequent df
 for df in df_list:
-    df.drop(["Team", "Date", "Day", "G#", "Week", "", "Opp", "Result"], axis=1, inplace=True)
+    df.drop(["Team", "Season", "Date", "Day", "G#", "Week", "", "Opp", "Result"], axis=1, inplace=True)
     # Drop that weird dup column from the website
-    df.drop(df.columns[1], axis=1, inplace=True)
+    #df.drop(df.columns[0], axis=1, inplace=True)
+    print(df.head())
 
     # Rearrange the columns so that game_id is in front
     cols = df.columns.tolist()
@@ -67,7 +69,6 @@ for df in df_list:
 # Ok now name the columns something specific to their metric so there's no dups
 for i in range(len(df_list)):
     df_list[i] = df_list[i].set_index(["game_id"]).add_suffix(f"_{df_names[i]}").reset_index()
-    print(df_list[i].head())
 
 # Now add back in the base df to the list to merge them all
 df_list.insert(0, base_df)
@@ -76,4 +77,6 @@ df_list.insert(0, base_df)
 master = reduce(lambda left, right: pd.merge(left, right, on=['game_id'],
                                              how='left'), df_list)
 
-master.to_csv(f"../Data out/master_data_{YEAR_MIN}-{YEAR_MAX}.csv")
+master = master.loc[:,~master.columns.duplicated()].copy()
+
+master.to_csv(f"../Stathead - Data out/master_data_{YEAR_MIN}-{YEAR_MAX}.csv")

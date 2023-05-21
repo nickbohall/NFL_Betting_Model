@@ -59,7 +59,6 @@ for df in df_list:
     df.drop(["Team", "Season", "Date", "Day", "G#", "Week", "", "Opp", "Result"], axis=1, inplace=True)
     # Drop that weird dup column from the website
     #df.drop(df.columns[0], axis=1, inplace=True)
-    print(df.head())
 
     # Rearrange the columns so that game_id is in front
     cols = df.columns.tolist()
@@ -78,5 +77,6 @@ master = reduce(lambda left, right: pd.merge(left, right, on=['game_id'],
                                              how='left'), df_list)
 
 master = master.loc[:,~master.columns.duplicated()].copy()
+master = master.sort_values("game_id")
 
 master.to_csv(f"../Stathead - Data out/master_data_{YEAR_MIN}-{YEAR_MAX}.csv")

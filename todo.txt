@@ -9,3 +9,15 @@ Todo:
 7. at the end, bring in spreads
 8. Over and under? avg both sides of pts scored/pts against
 9. Add in weather (temp, rain yes no, dome or not, snow?)
+10. Add days off differential between the two teams (rest adv)
+11. p values for coefs
+12. Confusion matrix for qb epa & offense epa
+13. Add team at home flag
+14. Merge in the other spread data and total data
+15. DVOA
+16. Time of possession
+17. Travel Distance
+18. Average # of plays
+19. Avg starting field position
+20. special teams performance
+21. QB specific metrics

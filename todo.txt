@@ -21,3 +21,8 @@ Todo:
 19. Avg starting field position
 20. special teams performance
 21. QB specific metrics
+
+rushing offense
+passing offense
+rushing defense
+passing defense

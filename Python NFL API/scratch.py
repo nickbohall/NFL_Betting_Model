@@ -4,10 +4,12 @@
 # from main_analysis import *
 import nfl_data_py as nfl
 import pandas as pd
+import sys
+import numpy as np
+np.set_printoptions(threshold=sys.maxsize)
 
-pd.set_option('display.max_columns', 15)
+pd.set_option('display.max_columns', 50)
 
 seasons = list(range(2022, 2023))
-test = nfl.clean_nfl_data(seasons)
-print(test)
-print(test.columns)
+test = nfl.see_pbp_cols()
+print(np.array(test))

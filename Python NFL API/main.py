@@ -11,7 +11,8 @@ from side_analysis import *
 
 plt.style.use('ggplot')
 plt.rcParams['figure.figsize'] = (12,8)
-pd.set_option('display.max_columns', 15)
+pd.set_option('display.max_columns', 5000)
+pd.set_option('display.width', 300)
 
 # ------------------------------------ SET INPUTS AND CONSTANTS ------------------------------------#
 
@@ -51,14 +52,33 @@ defense_epa = rushing_defense_epa.merge(passing_defense_epa, on=['defteam', 'sea
     .rename(columns={'defteam': 'team'})
 
 epa = offense_epa.merge(defense_epa, on=['team', 'season', 'week'], suffixes=('_offense', '_defense'))
+epa_final_cols = [column for column in epa.columns if 'ewma' in column and 'dynamic' in column]
+epa_final_cols.extend(['team', 'season', 'week'])
+epa = epa[epa_final_cols]
 
 # ------------------------------------ GET SCHEDULE DATA ------------------------------------ #
 
 schedule = play_data[['game_id', 'season', 'week', 'home_team', 'away_team', 'home_score', 'away_score']] \
     .drop_duplicates().reset_index(drop=True).assign(home_team_win=lambda x: (x.home_score > x.away_score).astype(int))
 
+
 df = schedule.merge(epa.rename(columns={'team': 'home_team'}), on=['home_team', 'season', 'week']) \
     .merge(epa.rename(columns={'team': 'away_team'}), on=['away_team', 'season', 'week'], suffixes=('_home', '_away'))
+
+# Trying to create a df where each matchup is duplicated and there's a hero team and opponent with the respective EPAs
+
+schedule_test = pd.DataFrame(np.repeat(schedule.values, 2, axis=0))
+schedule_test.columns = schedule.columns
+schedule_test["team"] = np.where(schedule_test.index % 2 == 0, schedule_test.home_team, schedule_test.away_team)
+schedule_test["opponent"] = np.where(schedule_test.index % 2 != 0, schedule_test.home_team, schedule_test.away_team)
+schedule_test["team_score"] = np.where(schedule_test.index % 2 == 0, schedule_test.home_score, schedule_test.away_score)
+schedule_test["opponent_score"] = np.where(schedule_test.index % 2 != 0, schedule_test.home_score, schedule_test.away_score)
+schedule_test["home"] = np.where(schedule_test.index % 2 == 0, 1, 0)
+
+df_test = schedule_test.merge(epa, on=['team', 'season', 'week'])\
+    .merge(epa.rename(columns={'team': 'opponent'}), on=['opponent', 'season', 'week'], suffixes=('_team', '_opp'))
+
+df_test.drop(['home_team', 'away_team', 'home_score', 'away_score', 'home_team_win'], axis=1, inplace=True)
 
 # Add in score diff column
 df.insert(6, "score_diff", df.home_score - df.away_score)
@@ -86,6 +106,7 @@ df.to_csv(f"../API Data Out/data_{seasons[0]}_to_{seasons[-1]}.csv")
 vegas.to_csv(f"../API Data Out/vegas_{seasons[0]}_to_{seasons[-1]}.csv")
 win_totals.to_csv(f"../API Data Out/win_totals_{seasons[0]}_to_{seasons[-1]}.csv")
 schedule.to_csv(f"../API Data Out/schedule_{seasons[0]}_to_{seasons[-1]}.csv")
+df_test.to_csv(f"../API Data Out/test_{seasons[0]}_to_{seasons[-1]}.csv")
 
 
 

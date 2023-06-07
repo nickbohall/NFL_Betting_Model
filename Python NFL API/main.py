@@ -29,7 +29,7 @@ rushing_offense_epa = create_epa_df(play_data, 'rush_attempt', 'posteam')
 rushing_defense_epa = create_epa_df(play_data, 'rush_attempt', 'defteam')
 passing_offense_epa = create_epa_df(play_data, 'pass_attempt', 'posteam')
 passing_defense_epa = create_epa_df(play_data, 'pass_attempt', 'defteam')
-
+print(rushing_defense_epa)
 # lag EPA one period back
 rushing_offense_epa['epa_shifted'] = lag_df(rushing_offense_epa, 'posteam')
 rushing_defense_epa['epa_shifted'] = lag_df(rushing_defense_epa, 'defteam')
@@ -41,7 +41,7 @@ rushing_offense_epa['ewma_dynamic_window'] = create_ewma_dynamic(rushing_offense
 rushing_defense_epa['ewma_dynamic_window'] = create_ewma_dynamic(rushing_defense_epa, 'defteam')
 passing_offense_epa['ewma_dynamic_window'] = create_ewma_dynamic(passing_offense_epa, 'posteam')
 passing_defense_epa['ewma_dynamic_window'] = create_ewma_dynamic(passing_defense_epa, 'defteam')
-
+print(rushing_defense_epa)
 # Merge all the data together
 offense_epa = rushing_offense_epa.merge(passing_offense_epa, on=['posteam', 'season', 'week'],
                                         suffixes=('_rushing', '_passing')) \
@@ -102,11 +102,11 @@ schedule = get_schedule(seasons)
 # ------------------------------------ OUTPUT TO CSV ------------------------------------ #
 
 # Okay nice, now lets output this bitch to a csv and move over to notebooks to data science
-df.to_csv(f"../API Data Out/data_{seasons[0]}_to_{seasons[-1]}.csv")
-vegas.to_csv(f"../API Data Out/vegas_{seasons[0]}_to_{seasons[-1]}.csv")
-win_totals.to_csv(f"../API Data Out/win_totals_{seasons[0]}_to_{seasons[-1]}.csv")
-schedule.to_csv(f"../API Data Out/schedule_{seasons[0]}_to_{seasons[-1]}.csv")
-df_test.to_csv(f"../API Data Out/test_{seasons[0]}_to_{seasons[-1]}.csv")
+# df.to_csv(f"../API Data Out/data_{seasons[0]}_to_{seasons[-1]}.csv")
+# vegas.to_csv(f"../API Data Out/vegas_{seasons[0]}_to_{seasons[-1]}.csv")
+# win_totals.to_csv(f"../API Data Out/win_totals_{seasons[0]}_to_{seasons[-1]}.csv")
+# schedule.to_csv(f"../API Data Out/schedule_{seasons[0]}_to_{seasons[-1]}.csv")
+# df_test.to_csv(f"../API Data Out/test_{seasons[0]}_to_{seasons[-1]}.csv")
 
 
 

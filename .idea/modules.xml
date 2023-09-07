@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../../100 Days of Code/Day63-SQLite &amp; SQLAlchemy/.idea/Day63-SQLite &amp; SQLAlchemy.iml" filepath="$PROJECT_DIR$/../../100 Days of Code/Day63-SQLite &amp; SQLAlchemy/.idea/Day63-SQLite &amp; SQLAlchemy.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/NFL Betting Model.iml" filepath="$PROJECT_DIR$/.idea/NFL Betting Model.iml" />
     </modules>
   </component>

@@ -16,7 +16,7 @@ pd.set_option('display.width', 300)
 
 # ------------------------------------ SET INPUTS AND CONSTANTS ------------------------------------#
 
-seasons = list(range(2002, 2023))
+seasons = list(range(2020, 2024))
 
 # ------------------------------------ GET DATA - API CALL ------------------------------------#
 
@@ -29,7 +29,7 @@ rushing_offense_epa = create_epa_df(play_data, 'rush_attempt', 'posteam')
 rushing_defense_epa = create_epa_df(play_data, 'rush_attempt', 'defteam')
 passing_offense_epa = create_epa_df(play_data, 'pass_attempt', 'posteam')
 passing_defense_epa = create_epa_df(play_data, 'pass_attempt', 'defteam')
-print(rushing_defense_epa)
+
 # lag EPA one period back
 rushing_offense_epa['epa_shifted'] = lag_df(rushing_offense_epa, 'posteam')
 rushing_defense_epa['epa_shifted'] = lag_df(rushing_defense_epa, 'defteam')
@@ -41,7 +41,7 @@ rushing_offense_epa['ewma_dynamic_window'] = create_ewma_dynamic(rushing_offense
 rushing_defense_epa['ewma_dynamic_window'] = create_ewma_dynamic(rushing_defense_epa, 'defteam')
 passing_offense_epa['ewma_dynamic_window'] = create_ewma_dynamic(passing_offense_epa, 'posteam')
 passing_defense_epa['ewma_dynamic_window'] = create_ewma_dynamic(passing_defense_epa, 'defteam')
-print(rushing_defense_epa)
+
 # Merge all the data together
 offense_epa = rushing_offense_epa.merge(passing_offense_epa, on=['posteam', 'season', 'week'],
                                         suffixes=('_rushing', '_passing')) \
@@ -65,20 +65,24 @@ schedule = play_data[['game_id', 'season', 'week', 'home_team', 'away_team', 'ho
 df = schedule.merge(epa.rename(columns={'team': 'home_team'}), on=['home_team', 'season', 'week']) \
     .merge(epa.rename(columns={'team': 'away_team'}), on=['away_team', 'season', 'week'], suffixes=('_home', '_away'))
 
+# ------------------------------------ NEW MAIN DF ------------------------------------ #
+
 # Trying to create a df where each matchup is duplicated and there's a hero team and opponent with the respective EPAs
 
 schedule_test = pd.DataFrame(np.repeat(schedule.values, 2, axis=0))
 schedule_test.columns = schedule.columns
 schedule_test["team"] = np.where(schedule_test.index % 2 == 0, schedule_test.home_team, schedule_test.away_team)
 schedule_test["opponent"] = np.where(schedule_test.index % 2 != 0, schedule_test.home_team, schedule_test.away_team)
-schedule_test["team_score"] = np.where(schedule_test.index % 2 == 0, schedule_test.home_score, schedule_test.away_score)
-schedule_test["opponent_score"] = np.where(schedule_test.index % 2 != 0, schedule_test.home_score, schedule_test.away_score)
+schedule_test["score"] = np.where(schedule_test.index % 2 == 0, schedule_test.home_score, schedule_test.away_score)
 schedule_test["home"] = np.where(schedule_test.index % 2 == 0, 1, 0)
 
-df_test = schedule_test.merge(epa, on=['team', 'season', 'week'])\
+df_new = schedule_test.merge(epa, on=['team', 'season', 'week'])\
     .merge(epa.rename(columns={'team': 'opponent'}), on=['opponent', 'season', 'week'], suffixes=('_team', '_opp'))
 
-df_test.drop(['home_team', 'away_team', 'home_score', 'away_score', 'home_team_win'], axis=1, inplace=True)
+# Adding team id to include H/A so everything is unique
+df_new["team_id"] = np.where(df_new.home == 1, df_new.game_id + "_H", df_new.game_id + "_A")
+
+df_new.drop(['home_team', 'away_team', 'home_score', 'away_score', 'home_team_win'], axis=1, inplace=True)
 
 # Add in score diff column
 df.insert(6, "score_diff", df.home_score - df.away_score)
@@ -102,11 +106,11 @@ schedule = get_schedule(seasons)
 # ------------------------------------ OUTPUT TO CSV ------------------------------------ #
 
 # Okay nice, now lets output this bitch to a csv and move over to notebooks to data science
-# df.to_csv(f"../API Data Out/data_{seasons[0]}_to_{seasons[-1]}.csv")
-# vegas.to_csv(f"../API Data Out/vegas_{seasons[0]}_to_{seasons[-1]}.csv")
-# win_totals.to_csv(f"../API Data Out/win_totals_{seasons[0]}_to_{seasons[-1]}.csv")
-# schedule.to_csv(f"../API Data Out/schedule_{seasons[0]}_to_{seasons[-1]}.csv")
-# df_test.to_csv(f"../API Data Out/test_{seasons[0]}_to_{seasons[-1]}.csv")
+df.to_csv(f"../API Data Out/data_{seasons[0]}_to_{seasons[-1]}.csv")
+vegas.to_csv(f"../API Data Out/vegas_{seasons[0]}_to_{seasons[-1]}.csv")
+win_totals.to_csv(f"../API Data Out/win_totals_{seasons[0]}_to_{seasons[-1]}.csv")
+schedule.to_csv(f"../API Data Out/schedule_{seasons[0]}_to_{seasons[-1]}.csv")
+df_new.to_csv(f"../API Data Out/test_{seasons[0]}_to_{seasons[-1]}.csv")
 
 
 

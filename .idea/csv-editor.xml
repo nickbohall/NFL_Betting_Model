@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\API Data Out\data_2020_to_2023.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

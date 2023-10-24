@@ -16,7 +16,7 @@ pd.set_option('display.width', 300)
 
 # ------------------------------------ SET INPUTS AND CONSTANTS ------------------------------------#
 
-seasons = list(range(2003, 2024))
+seasons = list(range(2018, 2024))
 
 # ------------------------------------ GET DATA - API CALL ------------------------------------#
 
@@ -55,6 +55,7 @@ epa = offense_epa.merge(defense_epa, on=['team', 'season', 'week'], suffixes=('_
 epa_final_cols = [column for column in epa.columns if 'ewma' in column and 'dynamic' in column]
 epa_final_cols.extend(['team', 'season', 'week'])
 epa = epa[epa_final_cols]
+
 
 # ------------------------------------ GET SCHEDULE DATA ------------------------------------ #
 
@@ -107,10 +108,10 @@ schedule = get_schedule(seasons)
 
 # Okay nice, now lets output this bitch to a csv and move over to notebooks to data science
 df.to_csv(f"../API Data Out/data_{seasons[0]}_to_{seasons[-1]}.csv")
-# vegas.to_csv(f"../API Data Out/vegas_{seasons[0]}_to_{seasons[-1]}.csv")
-# win_totals.to_csv(f"../API Data Out/win_totals_{seasons[0]}_to_{seasons[-1]}.csv")
+vegas.to_csv(f"../API Data Out/vegas_{seasons[0]}_to_{seasons[-1]}.csv")
+win_totals.to_csv(f"../API Data Out/win_totals_{seasons[0]}_to_{seasons[-1]}.csv")
 schedule.to_csv(f"../API Data Out/schedule_{seasons[0]}_to_{seasons[-1]}.csv")
-# df_new.to_csv(f"../API Data Out/test_{seasons[0]}_to_{seasons[-1]}.csv")
+df_new.to_csv(f"../API Data Out/test_{seasons[0]}_to_{seasons[-1]}.csv")
 
 
 
